@@ -1,130 +1,282 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Offline</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todolist - Game Offline</title>
     <style>
         body {
-            background-image: linear-gradient(100deg, #575656, #062e3f);
-            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
             margin: 0;
+            padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start;
-            font-family: 'Segoe UI', Arial, sans-serif;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+        }
+        
+        .offline-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
         }
         
         h1 {
-            margin-top: 60px;
-            color: white;
-            font-size: 2.2em;
-            letter-spacing: 1px;
-        }
-        
-        h3 {
-            color: #fff;
+            color: #ff6b6b;
+            margin-top: 0;
         }
         
         p {
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+        
+        .game-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .card {
+            height: 80px;
+            background-color: #4dabf7;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .card.flipped {
+            background-color: white;
             color: #333;
-            font-size: 1.1em;
+            transform: rotateY(180deg);
+        }
+        
+        .card.matched {
+            background-color: #51cf66;
+            cursor: default;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
             font-weight: bold;
-        }
-        
-        #game-area {
-            background: rgba(255, 255, 255, 0.95);
-            box-shadow: 0 8px 24px rgba(60, 60, 60, 0.12);
-            border-radius: 18px;
-            padding: 32px 28px 24px 28px;
-            margin-top: 30px;
-            display: inline-block;
-            min-width: 320px;
-        }
-        
-        #game-area p {
-            margin: 12px 0;
-        }
-        
-        input[type="number"] {
-            width: 60px;
-            padding: 8px;
-            border: 1.5px solid #43c6ac;
-            border-radius: 8px;
-            font-size: 1.1em;
-            margin-right: 10px;
-            outline: none;
-            transition: border 0.2s;
-        }
-        
-        input[type="number"]:focus {
-            border: 1.5px solid #2e8b7a;
-            background: #f0fdfa;
         }
         
         button {
-            background: linear-gradient(90deg, #43c6ac 60%, #191654 100%);
-            color: #fff;
+            background-color: #4dabf7;
+            color: white;
             border: none;
-            border-radius: 8px;
-            padding: 8px 22px;
-            font-size: 1em;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            font-size: 1rem;
             cursor: pointer;
-            margin: 8px 4px 0 0;
-            box-shadow: 0 2px 8px rgba(67, 198, 172, 0.08);
-            transition: background 0.2s, transform 0.1s;
+            transition: background-color 0.3s;
+            margin-top: 20px;
         }
         
         button:hover {
-            background: linear-gradient(90deg, #191654 60%, #43c6ac 100%);
-            transform: translateY(-2px) scale(1.04);
+            background-color: #339af0;
         }
         
-        #result {
-            font-weight: bold;
-            font-size: 1.15em;
-            margin-top: 16px;
-            min-height: 24px;
+        .difficulty {
+            margin: 15px 0;
+        }
+        
+        .difficulty button {
+            margin: 0 5px;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 500px) {
+            .card {
+                height: 60px;
+                font-size: 18px;
+            }
         }
     </style>
 </head>
-
 <body>
-    <h1>Kamu sedang offline!</h1>
-    <h3>Coba main game ini dulu:</h3>
-    <div id="game-area">
-        <p>Tebak angka antara 1 sampai 10!</p>
-        <input type="number" id="guess" min="1" max="10" />
-        <button onclick="checkGuess()">Tebak!</button>
-        <p id="result"></p>
-        <button onclick="resetGame()">Main Lagi</button>
+    <div class="offline-container">
+        <h1>Anda Sedang Offline</h1>
+        <p>Nikmati game memori ini sambil menunggu koneksi kembali. Daftar tugas Anda akan disinkronkan otomatis saat online.</p>
+        
+        <div class="difficulty">
+            <p>Pilih Tingkat Kesulitan:</p>
+            <button id="easy">Mudah (3 detik)</button>
+            <button id="medium">Sedang (5 detik)</button>
+            <button id="hard">Sulit (7 detik)</button>
+        </div>
+        
+        <div class="stats">
+            <div>Langkah: <span id="moves">0</span></div>
+            <div>Pasangan: <span id="pairs">0</span>/8</div>
+        </div>
+        
+        <div class="game-container" id="game-board"></div>
+        
+        <button id="reload-btn">Coba Sambungkan Kembali</button>
     </div>
-    <script>
-        let randomNumber = Math.floor(Math.random() * 10) + 1;
-        let attempts = 0;
 
-        function checkGuess() {
-            const guess = parseInt(document.getElementById('guess').value);
-            attempts++;
-            if (guess === randomNumber) {
-                document.getElementById('result').textContent = `Benar! Kamu menebak dalam ${attempts} percobaan.`;
-            } else if (guess < randomNumber) {
-                document.getElementById('result').textContent = 'Terlalu kecil!';
-            } else if (guess > randomNumber) {
-                document.getElementById('result').textContent = 'Terlalu besar!';
-            } else {
-                document.getElementById('result').textContent = 'Masukkan angka yang valid!';
+    <script>
+        // Game setup
+        const emojis = ['📝', '✅', '⏰', '📅', '🔔', '🎯', '🏆', '⭐'];
+        let cards = [...emojis, ...emojis];
+        let flippedCards = [];
+        let matchedPairs = 0;
+        let moves = 0;
+        let memorizeTime = 5000; // Default 5 detik (sedang)
+        let gameStarted = false;
+        
+        // Fungsi mengacak kartu
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        
+        // Tampilkan semua kartu untuk diingat
+        function showAllCards() {
+            const allCards = document.querySelectorAll('.card');
+            allCards.forEach(card => {
+                card.textContent = card.dataset.emoji;
+                card.style.backgroundColor = '#ffe066';
+            });
+            
+            // Setelah waktu menghafal, sembunyikan lagi
+            setTimeout(() => {
+                allCards.forEach(card => {
+                    if (!card.classList.contains('matched')) {
+                        card.textContent = '';
+                        card.style.backgroundColor = '#4dabf7';
+                    }
+                });
+                gameStarted = true;
+            }, memorizeTime);
+        }
+        
+        // Inisialisasi game
+        function initGame() {
+            const gameBoard = document.getElementById('game-board');
+            gameBoard.innerHTML = '';
+            flippedCards = [];
+            matchedPairs = 0;
+            moves = 0;
+            gameStarted = false;
+            updateStats();
+            
+            const shuffledCards = shuffle([...cards]);
+            
+            shuffledCards.forEach((emoji, index) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.dataset.emoji = emoji;
+                card.dataset.index = index;
+                card.addEventListener('click', flipCard);
+                gameBoard.appendChild(card);
+            });
+            
+            // Tampilkan semua kartu untuk dihafal
+            showAllCards();
+        }
+        
+        // Fungsi membalik kartu
+        function flipCard() {
+            if (!gameStarted) return;
+            
+            if (flippedCards.length < 2 && !this.classList.contains('flipped')) {
+                this.classList.add('flipped');
+                this.textContent = this.dataset.emoji;
+                flippedCards.push(this);
+                
+                if (flippedCards.length === 2) {
+                    moves++;
+                    updateStats();
+                    checkForMatch();
+                }
             }
         }
-
-        function resetGame() {
-            randomNumber = Math.floor(Math.random() * 10) + 1;
-            attempts = 0;
-            document.getElementById('guess').value = '';
-            document.getElementById('result').textContent = '';
+        
+        // Cek kecocokan kartu
+        function checkForMatch() {
+            const [card1, card2] = flippedCards;
+            
+            if (card1.dataset.emoji === card2.dataset.emoji) {
+                card1.classList.add('matched');
+                card2.classList.add('matched');
+                matchedPairs++;
+                updateStats();
+                flippedCards = [];
+                
+                if (matchedPairs === emojis.length) {
+                    setTimeout(() => {
+                        alert(`Selamat! Anda menang dalam ${moves} langkah!`);
+                        initGame();
+                    }, 500);
+                }
+            } else {
+                setTimeout(() => {
+                    card1.classList.remove('flipped');
+                    card2.classList.remove('flipped');
+                    card1.textContent = '';
+                    card2.textContent = '';
+                    flippedCards = [];
+                }, 1000);
+            }
         }
+        
+        // Update statistik
+        function updateStats() {
+            document.getElementById('moves').textContent = moves;
+            document.getElementById('pairs').textContent = matchedPairs;
+        }
+        
+        // Tombol kesulitan
+        document.getElementById('easy').addEventListener('click', () => {
+            memorizeTime = 3000;
+            initGame();
+        });
+        
+        document.getElementById('medium').addEventListener('click', () => {
+            memorizeTime = 5000;
+            initGame();
+        });
+        
+        document.getElementById('hard').addEventListener('click', () => {
+            memorizeTime = 7000;
+            initGame();
+        });
+        
+        // Tombol reload
+        document.getElementById('reload-btn').addEventListener('click', () => {
+            window.location.reload();
+        });
+        
+        // Deteksi koneksi
+        window.addEventListener('online', () => {
+            window.location.reload();
+        });
+        
+        // Mulai game dengan tingkat kesulitan sedang
+        window.addEventListener('load', () => {
+            initGame();
+        });
     </script>
 </body>
-
 </html>
